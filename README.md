@@ -2,31 +2,38 @@
 
 Este projeto é uma solução para um teste técnico para a empresa Entrega+ que consiste em um sistema simples para gerenciamento de vendas, produtos, clientes e fornecedores. A aplicação é executada inteiramente via terminal (interface de linha de comando) e utiliza um banco de dados PostgreSQL para persistência dos dados.
 
+1.  **Interface de Linha de Comando (CLI)**: Para uma operação rápida e direta via terminal.
+2.  **Interface Gráfica de Usuário (GUI)**: Uma aplicação desktop amigável construída com a biblioteca Tkinter.
+
 A arquitetura do projeto foi desenvolvida utilizando o padrão **MVC (Model-View-Controller)** para garantir a separação de responsabilidades, facilitando a manutenção e a escalabilidade do código.
 
-## ✨ Funcionalidades
+## Funcionalidades
 
-* **Gestão de Produtos**: Listar, cadastrar e atualizar estoque de produtos.
-* **Gestão de Vendas**: Registrar novas vendas (com atualização automática de estoque) e listar o histórico.
-* **Gestão de Clientes**: Cadastrar e listar clientes.
-* **Gestão de Fornecedores**: Cadastrar e listar fornecedores.
-* **Interface via Linha de Comando**: Interação com o sistema através de um menu interativo no terminal.
+* **Gestão de Entidades**: Cadastrar e listar Produtos, Vendas, Clientes e Fornecedores.
+* **Controle de Estoque**: A atualização do estoque é feita automaticamente ao registrar uma nova venda.
+* **Geração de Relatórios**: O sistema pode gerar relatórios de negócio essenciais, como:
+    * Produtos com estoque crítico.
+    * Top 5 produtos mais vendidos.
+    * Total de vendas e receita por categoria.
+    * Produtos que nunca foram vendidos.
+* **Duas Interfaces**: O usuário pode escolher entre a versão CLI ou a versão gráfica (GUI) para interagir com o sistema.
 
-## 🛠️ Tecnologias Utilizadas
+## Tecnologias Utilizadas
 
 * **Backend**: Python 3
 * **Banco de Dados**: PostgreSQL
+* **Interface Gráfica (GUI)**: Tkinter (biblioteca padrão do Python)
 * **Driver PostgreSQL**: `psycopg2-binary`
 * **Gerenciamento de Variáveis de Ambiente**: `python-dotenv`
 
-## 📋 Pré-requisitos
+## Pré-requisitos
 
 Antes de começar, certifique-se de que você tem os seguintes softwares instalados em sua máquina:
 * [Python 3.7+](https://www.python.org/downloads/)
 * [PostgreSQL](https://www.postgresql.org/download/)
 * [Git](https://git-scm.com/downloads)
 
-## 🚀 Como Rodar o Projeto
+## Como Rodar o Projeto
 
 Siga os passos abaixo para configurar e executar o projeto em seu ambiente local.
 
@@ -46,6 +53,10 @@ python -m venv venv
 # Ativar o ambiente virtual
 # No Windows:
 venv\Scripts\activate
+
+# Em caso de erro de politica utilize:
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process
+.\venv\Scripts\activate
 
 # No macOS/Linux:
 source venv/bin/activate
@@ -67,14 +78,20 @@ A aplicação precisa de um usuário e um banco de dados dedicados.
 
 2.  **Execute os seguintes comandos SQL para criar o usuário e o banco:**
     ```sql
+    
     -- Crie um usuário (role) para a aplicação com uma senha segura
     CREATE ROLE meu_usuario WITH LOGIN PASSWORD 'minha_senha_segura';
-
+    
     -- Crie o banco de dados
     CREATE DATABASE minha_loja_db;
-
+    
+    -- Saia do psql
+    \q
+    ```
+    ```sql
     -- Dê todos os privilégios do novo banco para o novo usuário
-    GRANT ALL PRIVILEGES ON DATABASE minha_loja_db TO meu_usuario;
+    psql -U postgres -c "GRANT ALL PRIVILEGES ON DATABASE minha_loja_db TO meu_usuario;"
+    psql -U postgres -c "ALTER DATABASE minha_loja_db OWNER TO meu_usuario;"
 
     -- Saia do psql
     \q
@@ -94,7 +111,7 @@ A aplicação precisa de um usuário e um banco de dados dedicados.
 
 ### 5. Criar as Tabelas e Popular o Banco
 
-Execute os scripts SQL para preparar o banco de dados para a aplicação. Você precisará digitar a senha do seu novo usuário.
+Execute os scripts SQL para preparar o banco de dados para a aplicação. Você precisará digitar a senha do seu novo usuário. (Antes entre no diretório do projeto sistema_vendas)
 
 ```bash
 # Comando para criar a estrutura das tabelas
@@ -104,15 +121,27 @@ psql -U meu_usuario -d minha_loja_bd -f database/schema.sql
 psql -U meu_usuario -d minha_loja_bd -f database/seeds.sql
 ```
 
-### 6. Executar a Aplicação
+### 6. Executar a Aplicação (Escolha sua Interface)
 
-Com tudo configurado, inicie a aplicação com o seguinte comando:
+Com tudo configurado, você pode escolher qual versão da aplicação deseja executar.
+
+#### Opção 1: Rodar a Versão Gráfica (GUI com Tkinter)
+
+Para uma experiência visual e amigável, execute o seguinte comando:
+
+```bash
+python main_gui.py
+```
+Uma janela desktop aparecerá com abas para cada funcionalidade do sistema.
+
+#### Opção 2: Rodar a Versão de Linha de Comando (CLI)
+
+Para uma interação rápida via terminal, execute este comando:
 
 ```bash
 python main.py
 ```
-
-O menu principal do sistema de gerenciamento de vendas aparecerá no seu terminal, pronto para ser utilizado.
+O menu principal do sistema aparecerá diretamente no seu terminal.
 
 ## 📂 Estrutura do Projeto
 
@@ -120,21 +149,18 @@ O menu principal do sistema de gerenciamento de vendas aparecerá no seu termina
 .
 ├── app/
 │   ├── controllers/
-│   │   └── controller.py
+│   │   ├── controller.py      # Lógica para CLI
+│   │   └── gui_controller.py  # Lógica para GUI
 │   ├── models/
-│   │   ├── cliente_model.py
-│   │   ├── database.py
-│   │   ├── fornecedor_model.py
-│   │   ├── produto_model.py
-│   │   └── venda_model.py
+│   │   ├── ...                # Lógica de negócio e acesso ao BD
 │   └── views/
-│       └── cli_view.py
+│       ├── cli_view.py        # Interface do terminal
+│       └── gui_view.py        # Interface gráfica com Tkinter
 ├── database/
-│   ├── queries.sql
-│   ├── schema.sql
-│   └── seeds.sql
+│   └── ...                    # Scripts SQL
 ├── .env
-├── main.py
+├── main.py                    # Ponto de entrada para CLI
+├── main_gui.py                # Ponto de entrada para GUI
 ├── ANALISE.md
 └── requirements.txt
 ```
