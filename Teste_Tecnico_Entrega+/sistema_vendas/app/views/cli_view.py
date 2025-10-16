@@ -8,6 +8,7 @@ class CLIView:
         print("2. Gestão de Vendas")
         print("3. Gestão de Clientes")
         print("4. Gestão de Fornecedores")
+        print("5. Gerar Relatórios")
         print("0. Sair")
         return input("Escolha uma opção: ")
 
@@ -20,6 +21,12 @@ class CLIView:
         print("\n--- Gestão de Vendas ---")
         print("1. Listar todas\n2. Registrar nova venda\n3. Buscar por período\n9. Voltar")
         return input("Escolha uma opção: ")
+    
+    def get_period_input(self):
+        print("Digite o período no formato AAAA-MM-DD.")
+        data_inicio = input("Data de início: ")
+        data_fim = input("Data de fim: ")
+        return data_inicio, data_fim
     
     def show_customer_menu(self):
         print("\n--- Gestão de Clientes ---"); print("1. Listar todos\n2. Cadastrar novo\n9. Voltar")
@@ -54,6 +61,46 @@ class CLIView:
         print("\n--- Gestão de Produtos ---")
         print("1. Listar todos\n2. Criar novo\n3. Atualizar estoque\n4. Filtrar por categoria\n9. Voltar") # Adicionado opção 4
         return input("Escolha uma opção: ")
+    
+    def show_reports_menu(self):
+        print("\n--- Módulo de Relatórios ---")
+        print("1. Produtos com Estoque Crítico (< 5 unidades)")
+        print("2. Top 5 Produtos Mais Vendidos")
+        print("3. Total de Vendas por Categoria")
+        print("4. Produtos Nunca Vendidos")
+        print("9. Voltar ao menu principal")
+        return input("Escolha uma opção: ")
+    
+    # MÉTODO COMPLETAMENTE NOVO
+    def show_reports_menu(self):
+        print("\n--- Módulo de Relatórios ---")
+        print("1. Produtos com Estoque Crítico (< 5 unidades)")
+        print("2. Top 5 Produtos Mais Vendidos")
+        print("3. Total de Vendas por Categoria")
+        print("4. Produtos Nunca Vendidos")
+        print("9. Voltar ao menu principal")
+        return input("Escolha uma opção: ")
+
+    # FUNÇÕES DE EXIBIÇÃO DE RELATÓRIOS (NOVAS)
+    def show_estoque_critico_report(self, produtos):
+        print("\n--- RELATÓRIO: PRODUTOS COM ESTOQUE CRÍTICO ---")
+        if not produtos: self.show_message("Nenhum produto com estoque crítico encontrado."); return
+        for p in produtos: print(f"ID: {p[0]}, Nome: {p[1]}, Estoque Atual: {p[2]}")
+
+    def show_top_produtos_report(self, produtos):
+        print("\n--- RELATÓRIO: TOP 5 PRODUTOS MAIS VENDIDOS ---")
+        if not produtos: self.show_message("Nenhuma venda registrada para gerar o relatório."); return
+        for i, p in enumerate(produtos): print(f"{i+1}º Lugar - Nome: {p[0]}, Total Vendido: {p[1]} unidades")
+
+    def show_vendas_categoria_report(self, categorias):
+        print("\n--- RELATÓRIO: VENDAS TOTAIS POR CATEGORIA ---")
+        if not categorias: self.show_message("Nenhuma venda registrada para gerar o relatório."); return
+        for c in categorias: print(f"Categoria: {c[0]}, Vendas: {c[1]}, Receita Total: R${c[2]:.2f}")
+
+    def show_nunca_vendidos_report(self, produtos):
+        print("\n--- RELATÓRIO: PRODUTOS NUNCA VENDIDOS ---")
+        if not produtos: self.show_message("Todos os produtos possuem ao menos uma venda registrada."); return
+        for p in produtos: print(f"ID: {p[0]}, Nome: {p[1]}, Estoque: {p[2]}")
 
     def get_category_input(self):
         return input("Digite a categoria que deseja filtrar: ")

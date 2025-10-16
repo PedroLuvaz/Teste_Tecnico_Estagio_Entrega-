@@ -3,6 +3,7 @@ from app.models.venda_model import VendaModel
 from app.models.cliente_model import ClienteModel
 from app.models.fornecedor_model import FornecedorModel
 from app.views.cli_view import CLIView
+from app.models.relatorio_model import RelatorioModel
 
 class Controller:
     def __init__(self):
@@ -10,6 +11,7 @@ class Controller:
         self.venda_model = VendaModel()
         self.cliente_model = ClienteModel()
         self.fornecedor_model = FornecedorModel()
+        self.relatorio_model = RelatorioModel()
         self.view = CLIView()
 
     def run(self):
@@ -19,6 +21,7 @@ class Controller:
             elif choice == '2': self.sales_management()
             elif choice == '3': self.customer_management()
             elif choice == '4': self.supplier_management()
+            elif choice == '5': self.reports_management()
             elif choice == '0': self.view.show_message("Saindo do sistema. Até logo!"); break
             else: self.view.show_message("Opção inválida. Tente novamente.")
 
@@ -40,6 +43,26 @@ class Controller:
                 self.view.show_products(produtos)
             elif choice == '9': break
             else: self.view.show_message("Opção inválida.")
+
+    def reports_management(self):
+        while True:
+            choice = self.view.show_reports_menu()
+            if choice == '1':
+                produtos = self.relatorio_model.get_produtos_estoque_critico()
+                self.view.show_estoque_critico_report(produtos)
+            elif choice == '2':
+                produtos = self.relatorio_model.get_top_5_produtos_vendidos()
+                self.view.show_top_produtos_report(produtos)
+            elif choice == '3':
+                categorias = self.relatorio_model.get_total_vendas_por_categoria()
+                self.view.show_vendas_categoria_report(categorias)
+            elif choice == '4':
+                produtos = self.relatorio_model.get_produtos_nunca_vendidos()
+                self.view.show_nunca_vendidos_report(produtos)
+            elif choice == '9':
+                break
+            else:
+                self.view.show_message("Opção inválida.")        
 
     def sales_management(self):
         while True:
