@@ -156,11 +156,9 @@ class GuiController:
     def update_product_stock(self, product_id, novo_estoque):
         """
         Atualiza o estoque de um produto específico.
-
         Args:
             product_id (str): O ID do produto a ser atualizado.
             novo_estoque (str): A nova quantidade em estoque.
-
         Returns:
             tuple[bool, str]: Uma tupla contendo um booleano de sucesso e uma mensagem.
         """

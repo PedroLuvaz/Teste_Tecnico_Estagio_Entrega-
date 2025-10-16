@@ -39,10 +39,17 @@ Siga os passos abaixo para configurar e executar o projeto em seu ambiente local
 
 ### 1. Clonar o Repositório
 ```bash
-git clone https://github.com/PedroLuvaz/Teste_Tecnico_Estagio_Entrega-.git
+ggit clone https://github.com/PedroLuvaz/Teste_Tecnico_Estagio_Entrega-.git
+
+# Navega para o diretório raiz do projeto. 
+# Todos os comandos a seguir devem ser executados de dentro deste diretório.
+
+cd Teste_Tecnico_Estagio_Entrega-plus-
+cd Teste_Tecnico_Estagio_Entrega+
 ```
 
 ### 2. Configurar o Ambiente Virtual e Instalar Dependências
+(Certifique-se que está no diretório do projeto)
 
 É uma boa prática criar um ambiente virtual para isolar as dependências do projeto.
 
@@ -67,6 +74,7 @@ pip install -r requirements.txt
 ### 3. Configurar o Banco de Dados PostgreSQL
 
 A aplicação precisa de um usuário e um banco de dados dedicados.
+(Certifique-se que está no diretório do projeto)
 
 1.  **Acesse o psql como superusuário:**
     ```bash
@@ -97,6 +105,7 @@ A aplicação precisa de um usuário e um banco de dados dedicados.
     ```
 
 ### 4. Configurar as Variáveis de Ambiente
+(Certifique-se que está no diretório do projeto)
 
 1.  **Renomeie o arquivo `.env.example` para `.env`** (se existir) ou crie um novo arquivo chamado `.env` na raiz do projeto.
 2.  **Preencha o arquivo `.env`** com os dados do banco que você acabou de criar:

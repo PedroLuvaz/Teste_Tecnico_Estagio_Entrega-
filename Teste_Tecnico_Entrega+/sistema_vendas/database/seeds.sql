@@ -79,12 +79,7 @@ INSERT INTO produtos (nome, preco, categoria, estoque, fornecedor_id) VALUES
 ('Aspirador de Po Portatil', 299.90, 'Eletrodomesticos', 20, 1),
 ('Roteador Wireless AX', 349.90, 'Eletronicos', 22, 1);
 
-
--- Populando Vendas com referência ao cliente (expandido para >=10 vendas)
--- A coluna 'valor_total' é calculada aqui para simplicidade, mas na aplicação é calculada dinamicamente.
--- A coluna 'quantidade' não é usada no INSERT, pois o modelo de venda a calcula e atualiza o estoque.
--- Para o seed, vamos assumir que o estoque já foi atualizado e apenas registramos a venda.
--- Corrigindo a estrutura do INSERT para incluir produto_id e quantidade, que são essenciais.
+-- Populando Vendas com referência ao cliente
 INSERT INTO vendas (produto_id, cliente_id, quantidade, valor_total, data_venda) VALUES
 (2, 1, 1, 3800.50, NOW() - INTERVAL '2 days'),        -- Smartphone Galaxy S23 (Top Seller)
 (4, 2, 2, 399.80, NOW() - INTERVAL '5 days'),         -- Fone de Ouvido Bluetooth XYZ (Top Seller)

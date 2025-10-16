@@ -82,4 +82,4 @@ Implementar promoções dinâmicas é outro passo evolutivo natural.
 
 ## Conclusão
 
-A solução desenvolvida para este teste técnico priorizou a criação de um software robusto, bem estruturado e preparado para o futuro, seguindo princípios consagrados de engenharia de software. A escolha deliberada da arquitetura MVC e a separação clara das responsabilidades não apenas atendem aos requisitos do problema, mas também estabelecem uma base sólida sobre a qual funcionalidades complexas podem ser construídas de forma segura e organizada.
+A solução desenvolvida para este teste técnico priorizou a criação de um sistema simples de venda, bem estruturado e preparado para o futuro, seguindo princípios consagrados de engenharia de software. A escolha deliberada da arquitetura MVC e a separação clara das responsabilidades não apenas atendem aos requisitos do problema, mas também estabelecem uma base sólida sobre a qual funcionalidades complexas podem ser construídas de forma segura e organizada.
