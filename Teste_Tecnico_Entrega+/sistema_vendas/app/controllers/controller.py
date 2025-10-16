@@ -4,6 +4,8 @@ from app.models.cliente_model import ClienteModel
 from app.models.fornecedor_model import FornecedorModel
 from app.views.cli_view import CLIView
 from app.models.relatorio_model import RelatorioModel
+from datetime import datetime
+from decimal import Decimal
 
 class Controller:
     """
@@ -41,7 +43,7 @@ class Controller:
     def product_management(self):
         """
         Gerencia o submenu de produtos. Permite ao usuário listar, criar,
-        atualizar estoque e filtrar produtos.
+        atualizar estoque, filtrar produtos e buscar por ID.
         """
         while True:
             choice = self.view.show_product_menu()
@@ -61,6 +63,19 @@ class Controller:
                 categoria = self.view.get_category_input()
                 produtos = self.produto_model.get_by_category(categoria)
                 self.view.show_products(produtos)
+            elif choice == '5':
+                # Busca produto por ID
+                try:
+                    pid = self.view.get_product_id()
+
+                    produto = self.produto_model.get_by_id(pid)
+                    if produto:
+                        # Reaproveita o método de exibição (lista com um item)
+                        self.view.show_products([produto])
+                    else:
+                        self.view.show_message(f"Produto com ID {pid} não encontrado.")
+                except Exception as e:
+                    self.view.show_message(f"Erro ao buscar produto por ID: {e}")
             elif choice == '9': break
             else: self.view.show_message("Opção inválida.")
 
@@ -94,27 +109,85 @@ class Controller:
 
     def sales_management(self):
         """
-        Gerencia o submenu de vendas. Permite ao usuário listar todas as vendas,
-        registrar uma nova venda e buscar vendas por período.
+        Menu de gestão de vendas (CLI). Permite listar, registrar e buscar por período.
+        Sanitiza valores retornados pelo model (Decimal -> float, datetime -> str)
+        para evitar erros de formatação no CLI.
         """
         while True:
-            choice = self.view.show_sales_menu()
-            if choice == '1': self.view.show_sales(self.venda_model.get_all())
-            elif choice == '2':
-                # Coleta os detalhes da nova venda e a registra
-                p_id, c_id, qtd = self.view.get_new_sale_details()
-                new_id, message = self.venda_model.register_sale(p_id, c_id, qtd)
-                self.view.show_message(message)
-            elif choice == '3':
-                # Busca vendas dentro de um intervalo de datas
+            try:
+                choice = self.view.show_sales_menu()
+            except AttributeError:
+                # fallback se CLIView não tiver show_sales_menu
+                print("\n--- Gestão de Vendas ---")
+                print("1 - Listar vendas")
+                print("2 - Registrar venda")
+                print("3 - Buscar por período")
+                print("9 - Voltar")
+                choice = input("Escolha: ").strip()
+
+            if choice == "1":
+                rows = self.venda_model.get_all()
+                # reutiliza a mesma exibição que o view providenciar (se existir) ou imprime simples
+                if hasattr(self.view, "print_sales_rows"):
+                    self.view.print_sales_rows(rows)
+                else:
+                    print("\n--- Todas as Vendas ---")
+                    for r in rows:
+                        print(r)
+            elif choice == "2":
+                # registrar venda via CLI (usa métodos da view se existirem)
                 try:
-                    inicio, fim = self.view.get_period_input()
-                    vendas = self.venda_model.get_by_period(inicio, fim)
-                    self.view.show_sales(vendas)
+                    pid = self.view.get_input("ID do produto: ") if hasattr(self.view, "get_input") else input("ID do produto: ")
+                    cid = self.view.get_input("ID do cliente: ") if hasattr(self.view, "get_input") else input("ID do cliente: ")
+                    qtd = self.view.get_input("Quantidade: ") if hasattr(self.view, "get_input") else input("Quantidade: ")
+                    data = ""
+                    if hasattr(self.view, "get_input"):
+                        data = self.view.get_input("Data da venda (opcional, YYYY-MM-DD ou YYYY-MM-DDTHH:MM:SS): ")
+                    else:
+                        data = input("Data da venda (opcional, YYYY-MM-DD ou YYYY-MM-DDTHH:MM:SS): ")
+                    ok, msg = self.add_sale(pid, cid, qtd) if data.strip() == "" else self.add_sale(pid, cid, qtd, data)
+                    print(msg)
                 except Exception as e:
-                    self.view.show_message(f"Erro ao buscar vendas. Verifique o formato da data. Detalhe: {e}")
-            elif choice == '9': break
-            else: self.view.show_message("Opção inválida.")    
+                    print(f"Erro ao registrar venda: {e}")
+            elif choice == "3":
+                # buscar por período
+                try:
+                    inicio = self.view.get_input("Data de início (YYYY-MM-DD): ") if hasattr(self.view, "get_input") else input("Data de início (YYYY-MM-DD): ")
+                    fim = self.view.get_input("Data de fim (YYYY-MM-DD): ") if hasattr(self.view, "get_input") else input("Data de fim (YYYY-MM-DD): ")
+                    raw = self.venda_model.get_by_period(inicio.strip(), fim.strip())
+                    sanitized = []
+                    for row in raw or []:
+                        if not row:
+                            continue
+                        new_row = []
+                        for v in row:
+                            if isinstance(v, datetime):
+                                new_row.append(v.strftime("%Y-%m-%d %H:%M:%S"))
+                            elif isinstance(v, Decimal):
+                                new_row.append(float(v))
+                            elif v is None:
+                                new_row.append("")
+                            else:
+                                new_row.append(v)
+                        # Se model retornou (id, produto, categoria, cliente, qtd, total, data) mapeia para exibição
+                        if len(new_row) == 7:
+                            mapped = (new_row[0], new_row[1], new_row[3], new_row[4], new_row[5], new_row[6])
+                        else:
+                            mapped = tuple(new_row)
+                        sanitized.append(mapped)
+
+                    if hasattr(self.view, "print_sales_rows"):
+                        self.view.print_sales_rows(sanitized)
+                    else:
+                        print("\n--- Relatório de Vendas ---")
+                        for r in sanitized:
+                            print(r)
+                except Exception as e:
+                    print(f">> Erro ao buscar vendas. Verifique o formato da data. Detalhe: {e}")
+            elif choice == "9":
+                break
+            else:
+                print("Opção inválida. Tente novamente.")
 
     def customer_management(self):
         """
@@ -144,4 +217,3 @@ class Controller:
             elif choice == '9': break
             else: self.view.show_message("Opção inválida.")
 
-    

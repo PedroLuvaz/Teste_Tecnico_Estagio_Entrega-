@@ -20,9 +20,15 @@ class CLIView:
 
     # --- Menus Específicos ---
     def show_product_menu(self):
-        """Exibe o menu de gestão de produtos e retorna a escolha."""
-        print("\n--- Gestão de Produtos ---"); print("1. Listar todos\n2. Criar novo\n3. Atualizar estoque\n9. Voltar")
-        return input("Escolha uma opção: ")
+        """Exibe o menu de gestão de produtos e retorna a escolha do usuário."""
+        print("\n--- Gestão de Produtos ---")
+        print("1 - Listar produtos")
+        print("2 - Adicionar produto")
+        print("3 - Atualizar estoque")
+        print("4 - Filtrar por categoria")
+        print("5 - Buscar por ID")    # <- opção adicionada
+        print("9 - Voltar")
+        return input("Escolha: ").strip()
 
     def show_sales_menu(self):
         """Exibe o menu de gestão de vendas e retorna a escolha."""
@@ -72,12 +78,6 @@ class CLIView:
         print("\n--- Lista de Fornecedores ---")
         for f in fornecedores: print(f"ID: {f[0]}, Empresa: {f[1]}, Contato: {f[2]}, Telefone: {f[3]}")
 
-    def show_product_menu(self):
-        """Exibe o menu de gestão de produtos (versão com filtro) e retorna a escolha."""
-        print("\n--- Gestão de Produtos ---")
-        print("1. Listar todos\n2. Criar novo\n3. Atualizar estoque\n4. Filtrar por categoria\n9. Voltar") # Adicionado opção 4
-        return input("Escolha uma opção: ")
-    
     def show_reports_menu(self):
         """Exibe o menu de relatórios e retorna a escolha do usuário."""
         print("\n--- Módulo de Relatórios ---")
@@ -88,8 +88,6 @@ class CLIView:
         print("9. Voltar ao menu principal")
         return input("Escolha uma opção: ")
     
-    # MÉTODO COMPLETAMENTE NOVO
-    # Nota: Este método está duplicado. Removendo um para limpeza.
     def show_reports_menu(self):
         print("\n--- Módulo de Relatórios ---")
         print("1. Produtos com Estoque Crítico (< 5 unidades)")
@@ -99,7 +97,7 @@ class CLIView:
         print("9. Voltar ao menu principal")
         return input("Escolha uma opção: ")
 
-    # FUNÇÕES DE EXIBIÇÃO DE RELATÓRIOS (NOVAS)
+    # FUNÇÕES DE EXIBIÇÃO DE RELATÓRIOS
     def show_estoque_critico_report(self, produtos):
         """Exibe o relatório de produtos com estoque crítico."""
         print("\n--- RELATÓRIO: PRODUTOS COM ESTOQUE CRÍTICO ---")
@@ -164,3 +162,27 @@ class CLIView:
         contato = input("Nome do contato: ")
         telefone = input("Telefone: ")
         return nome_empresa, contato, telefone
+    
+    def get_product_id(self):
+        """Solicita ao usuário o ID do produto. Retorna string vazia se cancelado."""
+        try:
+            return input("Informe o ID do produto (ou Enter para cancelar): ").strip()
+        except (KeyboardInterrupt, EOFError):
+            print()
+            return ""
+
+    def get_product_category(self):
+        """Solicita ao usuário a categoria (ou substring) para filtragem."""
+        try:
+            return input("Informe a categoria (ou parte dela) para filtrar (ou Enter para cancelar): ").strip()
+        except (KeyboardInterrupt, EOFError):
+            print()
+            return ""
+
+    def get_new_stock(self):
+        """Solicita o novo valor de estoque. Retorna string (vazia se cancelado)."""
+        try:
+            return input("Informe o novo estoque (número) (ou Enter para cancelar): ").strip()
+        except (KeyboardInterrupt, EOFError):
+            print()
+            return ""

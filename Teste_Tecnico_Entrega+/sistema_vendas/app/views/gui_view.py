@@ -40,6 +40,28 @@ class GuiView(tk.Tk):
                                  ["ID", "Nome", "Preço", "Categoria", "Estoque", "Fornecedor"],
                                  self.controller.list_products,
                                  self.show_add_product_dialog)
+        # Busca por ID e filtro por categoria
+        search_frame = ttk.Frame(tab)
+        search_frame.pack(fill="x", pady=5)
+
+        ttk.Label(search_frame, text="Buscar por ID:").pack(side="left", padx=(0,4))
+        id_entry = ttk.Entry(search_frame, width=10)
+        id_entry.pack(side="left")
+        def on_search_id():
+            pid = id_entry.get().strip()
+            data = self.controller.get_product_by_id(pid)
+            self._populate_tree(tab.tree, data)
+        ttk.Button(search_frame, text="Buscar", command=on_search_id).pack(side="left", padx=6)
+
+        ttk.Label(search_frame, text="Filtrar por Categoria:").pack(side="left", padx=(12,4))
+        cat_entry = ttk.Entry(search_frame, width=20)
+        cat_entry.pack(side="left")
+        def on_filter_cat():
+            cat = cat_entry.get().strip()
+            data = self.controller.get_products_by_category(cat)
+            self._populate_tree(tab.tree, data)
+        ttk.Button(search_frame, text="Filtrar", command=on_filter_cat).pack(side="left", padx=6)
+
         # Botão adicional para atualizar estoque
         ttk.Button(tab, text="Atualizar Estoque", command=self.show_update_stock_dialog).pack(pady=5)
 
@@ -51,7 +73,37 @@ class GuiView(tk.Tk):
                                  ["ID", "Produto", "Cliente", "Qtd", "Total", "Data"],
                                  self.controller.list_sales,
                                  self.show_add_sale_dialog)
+        # Filtro por período
+        period_frame = ttk.Frame(tab)
+        period_frame.pack(fill="x", pady=5)
 
+        ttk.Label(period_frame, text="Início (YYYY-MM-DD):").pack(side="left", padx=(0,4))
+        start_entry = ttk.Entry(period_frame, width=12)
+        start_entry.pack(side="left")
+        ttk.Label(period_frame, text="Fim (YYYY-MM-DD):").pack(side="left", padx=(8,4))
+        end_entry = ttk.Entry(period_frame, width=12)
+        end_entry.pack(side="left")
+        def on_search_period():
+            inicio = start_entry.get().strip()
+            fim = end_entry.get().strip()
+            try:
+                data = self.controller.get_sales_by_period(inicio, fim)
+                # adapta linhas caso o model retorne categoria extra
+                rows = []
+                for r in data:
+                    if not r: continue
+                    rlist = list(r)
+                    # modelo pode ser (id, produto, categoria, cliente, qtd, total, data)
+                    # mapear para (ID, Produto, Cliente, Qtd, Total, Data)
+                    if len(rlist) == 7:
+                        mapped = (rlist[0], rlist[1], rlist[3], rlist[4], rlist[5], rlist[6])
+                    else:
+                        mapped = tuple(rlist)
+                    rows.append(mapped)
+                self._populate_tree(tab.tree, rows)
+            except Exception as e:
+                messagebox.showerror("Erro", f"Erro ao buscar vendas: {e}")
+        ttk.Button(period_frame, text="Buscar por Período", command=on_search_period).pack(side="left", padx=8)
 
     def create_customers_tab(self):
         """Cria a aba 'Clientes' com uma tabela e botões de ação."""
@@ -116,15 +168,21 @@ class GuiView(tk.Tk):
         self.report_tree["show"] = "headings"
         for col in columns:
             self.report_tree.heading(col, text=col)
-            self.report_tree.column(col, width=150) # Largura padrão
+            self.report_tree.column(col, width=120, anchor="w")
 
         # Busca e insere os novos dados
         data = fetch_data_callback()
         if not data:
-            messagebox.showinfo("Relatório", "Nenhum dado encontrado para este relatório.")
+            messagebox.showinfo("Relatório", "Nenhum registro encontrado.")
         else:
             for row in data:
-                self.report_tree.insert("", "end", values=row)
+                vals = list(row) if row else []
+                # Ajusta tamanho para colunas
+                if len(vals) > len(columns):
+                    vals = vals[:len(columns)]
+                else:
+                    vals += [""] * (len(columns) - len(vals))
+                self.report_tree.insert("", "end", values=vals)
 
     def display_estoque_critico_report(self):
         """Chama a função genérica para exibir o relatório de estoque crítico."""
@@ -174,7 +232,7 @@ class GuiView(tk.Tk):
         tree = ttk.Treeview(frame, columns=columns, show="headings")
         for col in columns:
             tree.heading(col, text=col)
-            tree.column(col, width=100)
+            tree.column(col, width=120, anchor="w")
         tree.pack(fill="both", expand=True)
 
         # Adiciona a treeview como um atributo do frame para poder acessá-la depois
@@ -196,8 +254,27 @@ class GuiView(tk.Tk):
             tree.delete(item)
         # Busca os novos dados e insere na árvore
         for row in list_callback():
-            tree.insert("", "end", values=row)
-            
+            vals = list(row) if row else []
+            cols = tree["columns"]
+            if len(vals) > len(cols):
+                vals = vals[:len(cols)]
+            else:
+                vals += [""] * (len(cols) - len(vals))
+            tree.insert("", "end", values=vals)
+
+    def _populate_tree(self, tree, data_rows):
+        """Popula diretamente uma tree com uma lista de tuplas/lists (útil para buscas)."""
+        for item in tree.get_children():
+            tree.delete(item)
+        for row in data_rows or []:
+            vals = list(row) if row else []
+            cols = tree["columns"]
+            if len(vals) > len(cols):
+                vals = vals[:len(cols)]
+            else:
+                vals += [""] * (len(cols) - len(vals))
+            tree.insert("", "end", values=vals)
+
     # --- Diálogos de Adição ---
 
     def show_add_product_dialog(self):
@@ -206,8 +283,13 @@ class GuiView(tk.Tk):
         self.create_dialog("Adicionar Produto", fields, self.controller.add_product)
 
     def show_add_sale_dialog(self):
-        """Abre um diálogo para registrar uma nova venda."""
-        fields = {"ID Produto": "id_produto", "ID Cliente": "id_cliente", "Quantidade": "quantidade"}
+        """Abre um diálogo para registrar uma nova venda (agora com campo de data opcional)."""
+        fields = {
+            "ID Produto": "id_produto",
+            "ID Cliente": "id_cliente",
+            "Quantidade": "quantidade",
+            "Data da Venda (opcional, ISO YYYY-MM-DD ou YYYY-MM-DDTHH:MM:SS)": "data_venda"
+        }
         self.create_dialog("Registrar Venda", fields, self.controller.add_sale)
 
     def show_add_customer_dialog(self):
@@ -236,58 +318,72 @@ class GuiView(tk.Tk):
         stock_entry.grid(row=1, column=1, padx=10, pady=8, sticky="ew")
 
         def on_submit():
-            pid = id_entry.get()
-            novo = stock_entry.get()
-            result, message = self.controller.update_product_stock(pid, novo)
-            if result:
-                messagebox.showinfo("Sucesso", message)
+            pid = id_entry.get().strip()
+            novo = stock_entry.get().strip()
+            success, msg = self.controller.update_product_stock(pid, novo)
+            if success:
+                messagebox.showinfo("Sucesso", msg)
+                # atualiza todas as abas para refletir mudança
                 self.refresh_all_tabs()
                 dialog.destroy()
             else:
-                messagebox.showerror("Erro", message)
+                messagebox.showerror("Erro", msg)
 
         submit_button = ttk.Button(dialog, text="Atualizar", command=on_submit)
         submit_button.grid(row=2, columnspan=2, pady=12)
 
     def create_dialog(self, title, fields, callback):
-        """
-        Cria uma janela de diálogo (Toplevel) genérica com campos de entrada e um botão de salvar.
-
-        Args:
-            title (str): O título da janela de diálogo.
-            fields (dict): Um dicionário onde as chaves são os rótulos dos campos (ex: "Nome")
-                           e os valores são os nomes dos parâmetros para a função de callback.
-            callback (function): A função do controller que será chamada ao salvar,
-                                 recebendo os valores dos campos como argumentos.
-        """
+        """Cria um diálogo genérico de inserção que chama callback com os valores (ordem definida por fields.values())."""
         dialog = tk.Toplevel(self)
         dialog.title(title)
-        dialog.geometry("300x400")
-        
-        entries = {}
-        for i, (field, param_name) in enumerate(fields.items()):
-            ttk.Label(dialog, text=f"{field}:").grid(row=i, column=0, padx=10, pady=5, sticky="w")
-            entry = ttk.Entry(dialog)
-            entry.grid(row=i, column=1, padx=10, pady=5, sticky="ew")
-            entries[param_name] = entry
-        
-        def on_submit():
-            # Coleta os valores dos campos de entrada
-            values = {param_name: entry.get() for param_name, entry in entries.items()}
-            result, message = callback(**values)
-            if result:
-                messagebox.showinfo("Sucesso", message)
-                self.refresh_all_tabs()
-                dialog.destroy()
-            else:
-                messagebox.showerror("Erro", message)
+        dialog.transient(self)
+        dialog.grab_set()
 
-        submit_button = ttk.Button(dialog, text="Salvar", command=on_submit)
-        submit_button.grid(row=len(fields), columnspan=2, pady=20)
-        
+        entries = {}
+        r = 0
+        for label_text, key in fields.items():
+            ttk.Label(dialog, text=label_text + ":").grid(row=r, column=0, padx=8, pady=6, sticky="w")
+            ent = ttk.Entry(dialog, width=30)
+            ent.grid(row=r, column=1, padx=8, pady=6, sticky="ew")
+            entries[key] = ent
+            r += 1
+
+        def on_submit():
+            args = [entries[k].get().strip() for k in fields.values()]
+            try:
+                result = callback(*args)
+                # callback deve retornar (bool, mensagem) para a GUI
+                if isinstance(result, tuple) and len(result) == 2:
+                    ok, msg = result
+                    if ok:
+                        messagebox.showinfo("Sucesso", msg)
+                        self.refresh_all_tabs()
+                        dialog.destroy()
+                    else:
+                        messagebox.showerror("Erro", msg)
+                else:
+                    # caso callback seja do tipo que retorna id (CLI models), apenas informar e fechar
+                    messagebox.showinfo("Resultado", str(result))
+                    self.refresh_all_tabs()
+                    dialog.destroy()
+            except Exception as e:
+                messagebox.showerror("Erro", f"Falha ao processar: {e}")
+
+        submit_btn = ttk.Button(dialog, text="Confirmar", command=on_submit)
+        submit_btn.grid(row=r, columnspan=2, pady=10)
+
     def refresh_all_tabs(self):
-        """Atualiza os dados de todas as tabelas em todas as abas."""
-        self.refresh_tree(self.notebook.tabs()[0].tree, self.controller.list_products)
-        self.refresh_tree(self.notebook.tabs()[1].tree, self.controller.list_sales)
-        self.refresh_tree(self.notebook.tabs()[2].tree, self.controller.list_customers)
-        self.refresh_tree(self.notebook.tabs()[3].tree, self.controller.list_suppliers)
+        """Atualiza todas as treeviews das abas abertas (quando houver)."""
+        for child in self.notebook.winfo_children():
+            tree = getattr(child, "tree", None)
+            if tree:
+                # tenta descobrir o callback usado originalmente lendo um atributo; se não houver, apenas recarrega produtos/sales conforme tab text
+                tab_text = self.notebook.tab(child, option="text")
+                if tab_text == "Produtos":
+                    self.refresh_tree(tree, self.controller.list_products)
+                elif tab_text == "Vendas":
+                    self.refresh_tree(tree, self.controller.list_sales)
+                elif tab_text == "Clientes":
+                    self.refresh_tree(tree, self.controller.list_customers)
+                elif tab_text == "Fornecedores":
+                    self.refresh_tree(tree, self.controller.list_suppliers)

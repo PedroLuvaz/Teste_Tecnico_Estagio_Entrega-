@@ -77,29 +77,24 @@ class GuiController:
         except Exception as e:
             return False, f"Erro ao adicionar produto: {e}"
 
-    def add_sale(self, id_produto, id_cliente, quantidade):
+    def add_sale(self, id_produto, id_cliente, quantidade, data_venda=""):
         """
-        Registra uma nova venda.
-
-        Args:
-            id_produto (str): ID do produto vendido.
-            id_cliente (str): ID do cliente.
-            quantidade (str): Quantidade vendida.
-
-        Returns:
-            tuple[bool, str]: Uma tupla contendo um booleano de sucesso e uma mensagem 
-                              retornada pelo VendaModel.
+        Registra uma nova venda. data_venda é opcional (string ISO); se vazio usa NOW().
+        Retorna (bool, mensagem).
         """
         try:
             if not all([id_produto, id_cliente, quantidade]):
-                return False, "Todos os campos são obrigatórios."
-            
-            _, message = self.venda_model.register_sale(int(id_produto), int(id_cliente), int(quantidade))
-            
-            if "Erro" in message:
+                return False, "ID do produto, ID do cliente e quantidade são obrigatórios."
+            pid = int(id_produto)
+            cid = int(id_cliente)
+            qtd = int(quantidade)
+
+            new_id, message = self.venda_model.register_sale(pid, cid, qtd, data_venda.strip() or None)
+            if new_id is None:
                 return False, message
-            else:
-                return True, message
+            return True, message
+        except ValueError:
+            return False, "IDs e quantidade devem ser números inteiros."
         except Exception as e:
             return False, f"Erro ao registrar venda: {e}"
 
@@ -182,3 +177,32 @@ class GuiController:
             return False, "ID do produto e estoque devem ser números inteiros."
         except Exception as e:
             return False, f"Erro ao atualizar estoque: {e}"
+
+    # --- Novos métodos para suportar buscas na GUI ---
+    def get_product_by_id(self, product_id):
+        """Retorna lista com o produto (ou vazia) para popular a tree da GUI."""
+        if not product_id:
+            return []
+        try:
+            prod = self.produto_model.get_by_id(int(product_id))
+            return [prod] if prod else []
+        except Exception:
+            return []
+
+    def get_products_by_category(self, categoria):
+        """Retorna lista de produtos filtrados por categoria (pode ser substring)."""
+        if not categoria:
+            return self.list_products()
+        try:
+            return self.produto_model.get_by_category(categoria)
+        except Exception:
+            return []
+
+    def get_sales_by_period(self, inicio, fim):
+        """Retorna lista de vendas dentro do período informado (strings 'YYYY-MM-DD' ou datetimes)."""
+        if not inicio or not fim:
+            return self.list_sales()
+        try:
+            return self.venda_model.get_by_period(inicio, fim)
+        except Exception:
+            return []
