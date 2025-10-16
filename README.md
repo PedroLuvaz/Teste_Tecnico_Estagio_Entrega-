@@ -55,8 +55,7 @@ python -m venv venv
 venv\Scripts\activate
 
 # Em caso de erro de politica utilize:
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process
-.\venv\Scripts\activate
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass; .\venv\Scripts\Activate.ps1
 
 # No macOS/Linux:
 source venv/bin/activate
