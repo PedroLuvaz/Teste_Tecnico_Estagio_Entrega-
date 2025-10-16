@@ -78,3 +78,26 @@ INSERT INTO produtos (nome, preco, categoria, estoque, fornecedor_id) VALUES
 ('Relogio Smartband', 199.90, 'Acessorios', 45, 1),
 ('Aspirador de Po Portatil', 299.90, 'Eletrodomesticos', 20, 1),
 ('Roteador Wireless AX', 349.90, 'Eletronicos', 22, 1);
+
+
+-- Populando Vendas com referência ao cliente (expandido para >=10 vendas)
+-- A coluna 'valor_total' é calculada aqui para simplicidade, mas na aplicação é calculada dinamicamente.
+-- A coluna 'quantidade' não é usada no INSERT, pois o modelo de venda a calcula e atualiza o estoque.
+-- Para o seed, vamos assumir que o estoque já foi atualizado e apenas registramos a venda.
+-- Corrigindo a estrutura do INSERT para incluir produto_id e quantidade, que são essenciais.
+INSERT INTO vendas (produto_id, cliente_id, quantidade, valor_total, data_venda) VALUES
+(2, 1, 1, 3800.50, NOW() - INTERVAL '2 days'),        -- Smartphone Galaxy S23 (Top Seller)
+(4, 2, 2, 399.80, NOW() - INTERVAL '5 days'),         -- Fone de Ouvido Bluetooth XYZ (Top Seller)
+(9, 3, 1, 79.90, NOW() - INTERVAL '1 day'),          -- Camisa Polo Basica
+(10, 4, 1, 150.00, NOW() - INTERVAL '10 days'),        -- Calca Jeans Slim
+(6, 5, 1, 120.00, NOW() - INTERVAL '15 days'),        -- O Senhor dos Aneis - Trilogia
+(1, 6, 1, 4500.00, NOW() - INTERVAL '20 days'),       -- Laptop Gamer Nitro 5
+(16, 1, 3, 389.70, NOW() - INTERVAL '3 days'),        -- Mouse Gamer X200 (Top Seller)
+(4, 7, 1, 199.90, NOW() - INTERVAL '8 days'),         -- Fone de Ouvido Bluetooth XYZ
+(2, 8, 1, 3800.50, NOW() - INTERVAL '12 days'),       -- Smartphone Galaxy S23
+(15, 9, 2, 519.80, NOW() - INTERVAL '18 days'),       -- Teclado Mecanico RGB
+(46, 10, 5, 74.50, NOW() - INTERVAL '4 days'),       -- Caneta Esferografica 12 cores (Top Seller)
+(46, 11, 10, 149.00, NOW() - INTERVAL '6 days'),      -- Caneta Esferografica 12 cores
+(16, 12, 1, 129.90, NOW() - INTERVAL '9 days'),       -- Mouse Gamer X200
+(2, 3, 1, 3800.50, NOW() - INTERVAL '25 days'),       -- Smartphone Galaxy S23
+(46, 5, 8, 119.20, NOW() - INTERVAL '14 days');      -- Caneta Esferografica 12 cores
