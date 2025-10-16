@@ -149,6 +149,9 @@ class GuiView(tk.Tk):
         ttk.Button(btn_frame, text="Top 5 Vendas", command=self.display_top_5_report).pack(fill="x", pady=5)
         ttk.Button(btn_frame, text="Vendas por Categoria", command=self.display_vendas_categoria_report).pack(fill="x", pady=5)
         ttk.Button(btn_frame, text="Nunca Vendidos", command=self.display_nunca_vendidos_report).pack(fill="x", pady=5)
+        ttk.Button(btn_frame, text="Status Crítico", command=self.display_status_critico_report).pack(fill="x", pady=5)
+        ttk.Button(btn_frame, text="Relatório de Vendas", command=self.display_relatorio_vendas_completo).pack(fill="x", pady=5)
+        ttk.Button(btn_frame, text="Estoque > 5", command=self.display_produtos_estoque_alto).pack(fill="x", pady=5)
 
     def display_report(self, columns, fetch_data_callback):
         """
@@ -202,7 +205,22 @@ class GuiView(tk.Tk):
     def display_nunca_vendidos_report(self):
         """Chama a função genérica para exibir o relatório de produtos nunca vendidos."""
         cols = ["ID Produto", "Nome", "Estoque"]
-        self.display_report(cols, self.controller.get_produtos_nunca_vendidos)            
+        self.display_report(cols, self.controller.get_produtos_nunca_vendidos)
+
+    def display_status_critico_report(self):
+        """Chama a função genérica para exibir o relatório de produtos com status crítico."""
+        cols = ["ID Produto", "Nome", "Estoque", "Status"]
+        self.display_report(cols, self.controller.get_produtos_status_critico)
+
+    def display_relatorio_vendas_completo(self):
+        """Exibe o relatório completo de vendas, incluindo categoria e data."""
+        cols = ["ID Venda", "Produto", "Categoria", "Cliente", "Qtd", "Total", "Data"]
+        self.display_report(cols, self.controller.get_relatorio_vendas_completo)
+
+    def display_produtos_estoque_alto(self):
+        """Exibe o relatório de produtos com estoque > 5, ordenados."""
+        cols = ["ID", "Nome", "Categoria", "Preço", "Estoque"]
+        self.display_report(cols, self.controller.get_produtos_estoque_alto)
 
     # --- Widgets reutilizáveis ---
     

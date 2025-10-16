@@ -52,6 +52,18 @@ class GuiController:
     def get_produtos_nunca_vendidos(self):
         """Retorna produtos que nunca foram vendidos."""
         return self.relatorio_model.get_produtos_nunca_vendidos()
+
+    def get_produtos_status_critico(self):
+        """Retorna produtos com status crítico (nunca vendidos ou estoque baixo)."""
+        return self.relatorio_model.get_produtos_status_critico()
+
+    def get_relatorio_vendas_completo(self):
+        """Retorna o relatório de vendas com produto, categoria e data."""
+        return self.venda_model.get_all()
+
+    def get_produtos_estoque_alto(self):
+        """Retorna produtos com estoque > 5, ordenados."""
+        return self.relatorio_model.get_produtos_estoque_alto()
     
     def add_product(self, nome, preco, categoria, estoque, id_fornecedor):
         """

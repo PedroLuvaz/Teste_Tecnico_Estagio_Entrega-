@@ -102,6 +102,10 @@ class Controller:
                 # Exibe produtos que nunca foram vendidos
                 produtos = self.relatorio_model.get_produtos_nunca_vendidos()
                 self.view.show_nunca_vendidos_report(produtos)
+            elif choice == '5':
+                # Exibe produtos com status crítico
+                produtos = self.relatorio_model.get_produtos_status_critico()
+                self.view.show_status_critico_report(produtos)
             elif choice == '9':
                 break
             else:
@@ -216,4 +220,3 @@ class Controller:
                 self.view.show_message(f"Fornecedor '{details[0]}' criado com ID {new_id}.")
             elif choice == '9': break
             else: self.view.show_message("Opção inválida.")
-

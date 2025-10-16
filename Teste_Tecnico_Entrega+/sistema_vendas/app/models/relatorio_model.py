@@ -5,12 +5,12 @@ class RelatorioModel:
     Model responsável por agrupar consultas complexas e gerar relatórios
     para a análise de negócio.
     """
-    def get_produtos_estoque_critico(self, limite=5):
+    def get_produtos_estoque_critico(self, limite=3):
         """
         Retorna produtos cujo estoque está abaixo de um determinado limite.
 
         Args:
-            limite (int, optional): O nível de estoque considerado crítico. Defaults to 5.
+            limite (int, optional): O nível de estoque considerado crítico. Defaults to 3.
 
         Returns:
             list[tuple]: Uma lista de tuplas, onde cada tupla representa um produto
@@ -83,4 +83,47 @@ class RelatorioModel:
                 WHERE v.id IS NULL;
             """
             cur.execute(query)
+            return cur.fetchall()
+
+    def get_produtos_status_critico(self):
+        """
+        Identifica produtos que nunca foram vendidos ou que possuem estoque crítico (< 3).
+
+        Returns:
+            list[tuple]: Uma lista de tuplas (id, nome, estoque, status).
+        """
+        conn = get_db_connection()
+        if not conn: return []
+        with conn.cursor() as cur:
+            query = """
+                SELECT
+                    id, nome, estoque,
+                    CASE
+                        WHEN id NOT IN (SELECT DISTINCT produto_id FROM vendas) THEN 'Nunca Vendido'
+                        ELSE 'Estoque Crítico'
+                    END AS status
+                FROM produtos
+                WHERE id NOT IN (SELECT DISTINCT produto_id FROM vendas) OR estoque < 3;
+            """
+            cur.execute(query)
+            return cur.fetchall()
+
+    def get_produtos_estoque_alto(self, limite=5):
+        """
+        Retorna produtos com estoque acima de um limite, ordenados por categoria e preço.
+
+        Args:
+            limite (int): O limite de estoque para o filtro.
+
+        Returns:
+            list[tuple]: Lista de produtos (id, nome, categoria, preco, estoque).
+        """
+        conn = get_db_connection()
+        if not conn: return []
+        with conn.cursor() as cur:
+            query = """
+                SELECT id, nome, categoria, preco, estoque FROM produtos
+                WHERE estoque > %s ORDER BY categoria, preco;
+            """
+            cur.execute(query, (limite,))
             return cur.fetchall()

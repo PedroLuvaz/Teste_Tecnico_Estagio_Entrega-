@@ -85,6 +85,7 @@ class CLIView:
         print("2. Top 5 Produtos Mais Vendidos")
         print("3. Total de Vendas por Categoria")
         print("4. Produtos Nunca Vendidos")
+        print("5. Status Crítico (Nunca Vendido ou Estoque Baixo)")
         print("9. Voltar ao menu principal")
         return input("Escolha uma opção: ")
     
@@ -94,6 +95,7 @@ class CLIView:
         print("2. Top 5 Produtos Mais Vendidos")
         print("3. Total de Vendas por Categoria")
         print("4. Produtos Nunca Vendidos")
+        print("5. Status Crítico (Nunca Vendido ou Estoque Baixo)")
         print("9. Voltar ao menu principal")
         return input("Escolha uma opção: ")
 
@@ -121,6 +123,12 @@ class CLIView:
         print("\n--- RELATÓRIO: PRODUTOS NUNCA VENDIDOS ---")
         if not produtos: self.show_message("Todos os produtos possuem ao menos uma venda registrada."); return
         for p in produtos: print(f"ID: {p[0]}, Nome: {p[1]}, Estoque: {p[2]}")
+
+    def show_status_critico_report(self, produtos):
+        """Exibe o relatório de produtos com status crítico."""
+        print("\n--- RELATÓRIO: PRODUTOS COM STATUS CRÍTICO ---")
+        if not produtos: self.show_message("Nenhum produto em estado crítico encontrado."); return
+        for p in produtos: print(f"ID: {p[0]}, Nome: {p[1]}, Estoque: {p[2]}, Status: {p[3]}")
 
     def get_category_input(self):
         """Solicita e retorna o nome de uma categoria para filtro."""
