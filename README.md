@@ -110,7 +110,7 @@ A aplicação precisa de um usuário e um banco de dados dedicados.
 1.  **Renomeie o arquivo `.env.example` para `.env`** (se existir) ou crie um novo arquivo chamado `.env` na raiz do projeto.
 2.  **Preencha o arquivo `.env`** com os dados do banco que você acabou de criar:
     ```ini
-    DB_NAME=minha_loja_bd
+    DB_NAME=minha_loja_db
     DB_USER=meu_usuario
     DB_PASSWORD=minha_senha_segura
     DB_HOST=localhost
