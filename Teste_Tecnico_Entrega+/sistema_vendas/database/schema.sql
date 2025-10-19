@@ -1,4 +1,4 @@
--- Remove tabelas existentes para garantir um ambiente limpo
+-- Remove tabelas existentes para garantir um ambiente limpo (ideal para teste, nesse caso o teste técnico)
 DROP TABLE IF EXISTS vendas;
 DROP TABLE IF EXISTS produtos;
 DROP TABLE IF EXISTS clientes;
@@ -20,26 +20,26 @@ CREATE TABLE clientes (
     telefone VARCHAR(20)
 );
 
--- Tabela de produtos (MODIFICADA)
+-- Tabela de produtos
 CREATE TABLE produtos (
     id SERIAL PRIMARY KEY,
     nome VARCHAR(100) NOT NULL,
     preco DECIMAL(10,2) NOT NULL,
     categoria VARCHAR(50),
     estoque INT DEFAULT 0,
-    fornecedor_id INT, -- Adicionado
+    fornecedor_id INT, 
     created_at TIMESTAMP DEFAULT NOW(),
-    FOREIGN KEY (fornecedor_id) REFERENCES fornecedores(id) -- Adicionado
+    FOREIGN KEY (fornecedor_id) REFERENCES fornecedores(id) 
 );
 
--- Tabela de vendas (MODIFICADA)
+-- Tabela de vendas
 CREATE TABLE vendas (
     id SERIAL PRIMARY KEY,
     produto_id INT,
-    cliente_id INT, -- Adicionado
+    cliente_id INT, 
     quantidade INT NOT NULL,
     data_venda TIMESTAMP DEFAULT NOW(),
     valor_total DECIMAL(10,2) NOT NULL,
     FOREIGN KEY (produto_id) REFERENCES produtos(id),
-    FOREIGN KEY (cliente_id) REFERENCES clientes(id) -- Adicionado
+    FOREIGN KEY (cliente_id) REFERENCES clientes(id) 
 );

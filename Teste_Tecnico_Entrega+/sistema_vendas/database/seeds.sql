@@ -24,7 +24,7 @@ INSERT INTO clientes (nome, email, telefone) VALUES
 ('Thiago Barbosa', 'thiago.barbosa@email.com', '81999998888'),
 ('Renata Duarte', 'renata.duarte@email.com', '81988887766');
 
--- Populando Produtos com referência ao fornecedor (expandido para >=10 produtos)
+-- Populando Produtos com referência ao fornecedor
 INSERT INTO produtos (nome, preco, categoria, estoque, fornecedor_id) VALUES
 ('Laptop Gamer Nitro 5', 4500.00, 'Eletronicos', 10, 1),
 ('Smartphone Galaxy S23', 3800.50, 'Eletronicos', 15, 1),
