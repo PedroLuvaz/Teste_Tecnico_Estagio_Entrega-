@@ -39,7 +39,7 @@ Siga os passos abaixo para configurar e executar o projeto em seu ambiente local
 
 ### 1. Clonar o Repositório
 ```bash
-ggit clone https://github.com/PedroLuvaz/Teste_Tecnico_Estagio_Entrega-.git
+git clone https://github.com/PedroLuvaz/Teste_Tecnico_Estagio_Entrega-.git
 
 # Navega para o diretório raiz do projeto. 
 # Todos os comandos a seguir devem ser executados de dentro deste diretório.
@@ -49,7 +49,7 @@ cd Teste_Tecnico_Estagio_Entrega+
 ```
 
 ### 2. Configurar o Ambiente Virtual e Instalar Dependências
-(Certifique-se que está no diretório do projeto)
+(VÁ PARA O DIRETORIO DO PROJETO)
 
 É uma boa prática criar um ambiente virtual para isolar as dependências do projeto.
 
